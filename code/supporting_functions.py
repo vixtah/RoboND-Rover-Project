@@ -42,7 +42,7 @@ def update_rover(Rover, data):
       
       print('speed =',Rover.vel, 'position =', Rover.pos, 'throttle =', 
       Rover.throttle, 'steer_angle =', Rover.steer, 'near_sample', Rover.near_sample, 
-      'picking_up', data["picking_up"])
+      'picking_up', data["picking_up"], 'prev_pos', Rover.prev_pos, 'std_dev', np.std([x for x,y in Rover.prev_pos]))
 
       # Get the current image from the center camera of the rover
       imgString = data["image"]

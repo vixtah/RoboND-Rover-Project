@@ -37,6 +37,15 @@ ground_truth_3d = np.dstack((ground_truth*0, ground_truth*255, ground_truth*0)).
 
 # Define RoverState() class to retain rover state parameters
 class RoverState():
+    def update_prev_pos(self):
+        self.prev_pos.append(Rover.pos)
+        print(self.prev_pos)
+        if(len(self.prev_pos) > self.memory):
+            self.prev_pos = self.prev_pos[1:]
+        
+    def is_stuck(self):
+        return len(self.prev_pos) == self.memory and np.std([x for x,y in self.prev_pos]) < .02 and not self.mode == 'reset'
+
     def __init__(self):
         self.start_time = None # To record the start time of navigation
         self.total_time = None # To record total duration of naviagation
@@ -53,15 +62,15 @@ class RoverState():
         self.nav_dists = None # Distances of navigable terrain pixels
         self.ground_truth = ground_truth_3d # Ground truth worldmap
         self.mode = 'forward' # Current mode (can be forward or stop)
-        self.throttle_set = 0.2 # Throttle setting when accelerating
+        self.throttle_set = 0.4 # Throttle setting when accelerating
         self.brake_set = 10 # Brake setting when braking
         # The stop_forward and go_forward fields below represent total count
         # of navigable terrain pixels.  This is a very crude form of knowing
         # when you can keep going and when you should stop.  Feel free to
         # get creative in adding new fields or modifying these!
-        self.stop_forward = 50 # Threshold to initiate stopping
+        self.stop_forward = 100 # Threshold to initiate stopping
         self.go_forward = 500 # Threshold to go forward again
-        self.max_vel = 2 # Maximum velocity (meters/second)
+        self.max_vel = 1.5 # Maximum velocity (meters/second)
         # Image output from perception step
         # Update this image to display your intermediate analysis steps
         # on screen in autonomous mode
@@ -75,6 +84,10 @@ class RoverState():
         self.near_sample = 0 # Will be set to telemetry value data["near_sample"]
         self.picking_up = 0 # Will be set to telemetry value data["picking_up"]
         self.send_pickup = False # Set to True to trigger rock pickup
+
+        self.prev_pos = []
+        self.reset_remaining = 0
+        self.memory = 50
 # Initialize our rover 
 Rover = RoverState()
 
